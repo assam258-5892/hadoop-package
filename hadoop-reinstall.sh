@@ -7,7 +7,7 @@ export PGDATA="${HADOOP_BASE}/hadoop/pgdata"
 HADOOP_VERSION="2.9.2"
 HIVE_VERSION="2.3.7"
 PSQL_VERSION="42.2.16"
-TOMCAT_VERSION="9.0.41"
+TOMCAT_VERSION="9.0.46"
 
 cd "${HADOOP_BASE}"
 pkill java
@@ -42,6 +42,10 @@ cat                                                                 <<EOF >>"${H
     <property>
         <name>fs.defaultFS</name>
         <value>hdfs://localhost:8020</value>
+    </property>
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>${HADOOP_BASE}/hadoop/tmp</value>
     </property>
     <property>
         <name>hadoop.proxyuser.${USER}.groups</name>
