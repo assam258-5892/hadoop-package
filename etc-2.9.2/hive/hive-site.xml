@@ -2,7 +2,7 @@
 
     <property>
         <name>javax.jdo.option.ConnectionURL</name>
-        <value>jdbc:postgresql://localhost:5432/hive</value>
+        <value>jdbc:postgresql://localhost:5433/hive</value>
         <description>JDBC connect string for a JDBC metastore</description>
     </property>
 
