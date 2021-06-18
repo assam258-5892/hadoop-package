@@ -9,6 +9,10 @@ HIVE_VERSION="2.3.7"
 PSQL_VERSION="42.2.16"
 TOMCAT_VERSION="9.0.46"
 
+if [ -z "${DATALAKE_HADOOP_HOST}" ]; then
+    export DATALAKE_HADOOP_HOST="localhost"
+fi
+
 cd "${HADOOP_BASE}"
 pkill java
 pkill postgres
@@ -17,6 +21,8 @@ rm -rf hadoop /tmp/hadoop-*
 mkdir hadoop
 cd "hadoop"
 curl -s "${HADOOP_REPOSITORY}/start.sh"                                  >"start.sh"
+curl -s "${HADOOP_REPOSITORY}/init.sh"                                   >"init.sh"
+curl -s "${HADOOP_REPOSITORY}/clean.sh"                                  >"clean.sh"
 curl -s "${HADOOP_REPOSITORY}/stop.sh"                                   >"stop.sh"
 curl -s "${HADOOP_REPOSITORY}/hadoop-${HADOOP_VERSION}.tar.gz.1"         >"hadoop-${HADOOP_VERSION}.tar.gz"
 curl -s "${HADOOP_REPOSITORY}/hadoop-${HADOOP_VERSION}.tar.gz.2"        >>"hadoop-${HADOOP_VERSION}.tar.gz"
@@ -41,7 +47,7 @@ cat                                                                 <<EOF >>"${H
 <configuration>
     <property>
         <name>fs.defaultFS</name>
-        <value>hdfs://localhost:8020</value>
+        <value>hdfs://${DATALAKE_HADOOP_HOST}:8020</value>
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
@@ -69,6 +75,10 @@ cat                                                                 <<EOF >>"${H
         <value>false</value>
     </property>
     <property>
+        <name>dfs.namenode.rpc-bind-host</name>
+        <value>0.0.0.0</value>
+    </property>
+    <property>
         <name>dfs.namenode.name.dir</name>
         <value>${HADOOP_BASE}/hadoop/nodes/namenode</value>
     </property>
@@ -78,21 +88,32 @@ cat                                                                 <<EOF >>"${H
     </property>
 </configuration>
 EOF
+curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/mapred-site.xml"  >"${HADOOP_HOME}/etc/hadoop/mapred-site.xml"
+curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/yarn-site.xml"  >"${HADOOP_HOME}/etc/hadoop/yarn-site.xml"
+cat                                                                 <<EOF >>"${HADOOP_HOME}/etc/hadoop/yarn-site.xml"
+<configuration>
+    <property>
+        <name>yarn.resourcemanager.scheduler.class</name>
+        <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.resource.memory-mb</name>
+        <value>${DATALAKE_YARN_MEMORY}</value>
+    </property>
+    <property>
+        <name>yarn.nodemanager.resource.cpu-vcores</name>
+        <value>${DATALAKE_YARN_CORE}</value>
+    </property>
+</configuration>
+EOF
+if [ -n "${DATALAKE_HIVE_HEAPSIZE}" ]; then
+    echo "export HADOOP_HEAPSIZE=${DATALAKE_HIVE_HEAPSIZE}"                >"${HIVE_HOME}/conf/hive-env.sh"
+fi
 curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hive/hive-site.xml"    >"${HIVE_HOME}/conf/hive-site.xml"
 curl -s "${HADOOP_REPOSITORY}/postgresql-${PSQL_VERSION}.jar"              >"${HIVE_HOME}/lib/postgresql-${PSQL_VERSION}.jar"
 
-mkdir ${HIVE_HOME}/logs
-pg_ctl init -D "${PGDATA}"
-pg_ctl start -D "${PGDATA}" -l "${PGDATA}/logfile"
-psql postgres -c "create user hadoop"
-psql postgres -c "create database hadoop"
-psql postgres -c "create database hive"
-"${HADOOP_HOME}/bin/hdfs" namenode -format
-"${HADOOP_HOME}/sbin/start-dfs.sh"
-"${HADOOP_HOME}/bin/hdfs" dfs -mkdir     /tmp
-"${HADOOP_HOME}/bin/hdfs" dfs -mkdir -p  /user/hive/warehouse
-"${HADOOP_HOME}/bin/hdfs" dfs -chmod g+w /tmp
-"${HADOOP_HOME}/bin/hdfs" dfs -chmod g+w /user/hive/warehouse
-( cd "${HIVE_HOME}"; "${HIVE_HOME}/bin/schematool" -dbType postgres -initSchema )
-( cd "${HIVE_HOME}"; nohup "${HIVE_HOME}/bin/hiveserver2" >"${HIVE_HOME}/logs/logfile" 2>&1 & )
-echo "HIVE 접속 : \"${HIVE_HOME}/bin/beeline\" -u jdbc:hive2://localhost:10000"
+sh "${HADOOP_BASE}/hadoop/init.sh"
