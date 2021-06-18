@@ -12,6 +12,12 @@ TOMCAT_VERSION="9.0.46"
 if [ -z "${DATALAKE_HADOOP_HOST}" ]; then
     export DATALAKE_HADOOP_HOST="localhost"
 fi
+if [ -z "${DATALAKE_YARN_MEMORY}" ]; then
+    export DATALAKE_YARN_MEMORY="8192"
+fi
+if [ -z "${DATALAKE_YARN_CORE}" ]; then
+    export DATALAKE_YARN_CORE="4"
+fi
 
 cd "${HADOOP_BASE}"
 pkill java
