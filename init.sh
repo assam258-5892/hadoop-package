@@ -4,6 +4,10 @@ export HADOOP_HOME="${HADOOP_BASE}/hadoop/hadoop"
 export HIVE_HOME="${HADOOP_BASE}/hadoop/hive"
 export PGDATA="${HADOOP_BASE}/hadoop/pgdata"
 
+if [ -z "${DATALAKE_HADOOP_HOST}" ]; then
+    export DATALAKE_HADOOP_HOST="localhost"
+fi
+
 sh "${HADOOP_BASE}/hadoop/clean.sh"
 
 cd "${HADOOP_BASE}/hadoop"
@@ -22,4 +26,4 @@ psql postgres -c "create database hive"
 "${HADOOP_HOME}/bin/hdfs" dfs -chmod g+w /user/hive/warehouse
 ( cd "${HIVE_HOME}"; "${HIVE_HOME}/bin/schematool" -dbType postgres -initSchema )
 ( cd "${HIVE_HOME}"; nohup "${HIVE_HOME}/bin/hiveserver2" >"${HIVE_HOME}/logs/logfile" 2>&1 & )
-echo "HIVE 접속 : \"${HIVE_HOME}/bin/beeline\" -u jdbc:hive2://localhost:10000"
+echo "HIVE 접속 : \"${HIVE_HOME}/bin/beeline\" -u jdbc:hive2://${DATALAKE_HADOOP_HOST}:10000"
