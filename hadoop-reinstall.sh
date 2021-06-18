@@ -47,6 +47,9 @@ mv "apache-hive-${HIVE_VERSION}-bin" hive
 mv "apache-tomcat-${TOMCAT_VERSION}" tomcat
 rm -f "hadoop-${HADOOP_VERSION}.tar.gz" "apache-hive-${HIVE_VERSION}-bin.tar.gz" "apache-tomcat-${TOMCAT_VERSION}.tar.gz"
 echo "export JAVA_HOME=${JAVA_HOME}"                                       >"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
+if [ -n "${DATALAKE_HADOOP_HEAPSIZE}" ]; then
+    echo "export HADOOP_HEAPSIZE=${DATALAKE_HADOOP_HEAPSIZE}"             >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
+fi
 curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/hadoop-env.sh" >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
 curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/core-site.xml"  >"${HADOOP_HOME}/etc/hadoop/core-site.xml"
 cat                                                                 <<EOF >>"${HADOOP_HOME}/etc/hadoop/core-site.xml"
