@@ -7,7 +7,6 @@ export PGDATA="${HADOOP_BASE}/hadoop/pgdata"
 HADOOP_VERSION="2.9.2"
 HIVE_VERSION="2.3.7"
 PSQL_VERSION="42.2.16"
-TOMCAT_VERSION="9.0.46"
 
 if [ -z "${DATALAKE_HADOOP_HOST}" ]; then
     export DATALAKE_HADOOP_HOST="localhost"
@@ -20,13 +19,13 @@ if [ -z "${DATALAKE_YARN_CORE}" ]; then
 fi
 
 cd "${HADOOP_BASE}"
-pgrep -f proc_hiveserver2 | xargs -r kill -9
-pgrep -f proc_nodemanager | xargs -r kill -9
-pgrep -f proc_resourcemanager | xargs -r kill -9
+pgrep -f proc_hiveserver2       | xargs -r kill -9
+pgrep -f proc_nodemanager       | xargs -r kill -9
+pgrep -f proc_resourcemanager   | xargs -r kill -9
 pgrep -f proc_secondarynamenode | xargs -r kill -9
-pgrep -f proc_datanode | xargs -r kill -9
-pgrep -f proc_namenode | xargs -r kill -9
-pgrep -f postgres | xargs -r kill -9
+pgrep -f proc_datanode          | xargs -r kill -9
+pgrep -f proc_namenode          | xargs -r kill -9
+pgrep -f postgres               | xargs -r kill -9
 rm -rf hadoop /tmp/hadoop-*
 
 mkdir hadoop
@@ -43,26 +42,23 @@ curl -s "${HADOOP_REPOSITORY}/hadoop-${HADOOP_VERSION}.tar.gz.5"        >>"hadoo
 curl -s "${HADOOP_REPOSITORY}/apache-hive-${HIVE_VERSION}-bin.tar.gz.1"  >"apache-hive-${HIVE_VERSION}-bin.tar.gz"
 curl -s "${HADOOP_REPOSITORY}/apache-hive-${HIVE_VERSION}-bin.tar.gz.2" >>"apache-hive-${HIVE_VERSION}-bin.tar.gz"
 curl -s "${HADOOP_REPOSITORY}/apache-hive-${HIVE_VERSION}-bin.tar.gz.3" >>"apache-hive-${HIVE_VERSION}-bin.tar.gz"
-curl -s "${HADOOP_REPOSITORY}/apache-tomcat-${TOMCAT_VERSION}.tar.gz"    >"apache-tomcat-${TOMCAT_VERSION}.tar.gz"
 tar xzf "hadoop-${HADOOP_VERSION}.tar.gz"
 tar xzf "apache-hive-${HIVE_VERSION}-bin.tar.gz"
-tar xzf "apache-tomcat-${TOMCAT_VERSION}.tar.gz"
 mv "hadoop-${HADOOP_VERSION}"        hadoop
 mv "apache-hive-${HIVE_VERSION}-bin" hive
-mv "apache-tomcat-${TOMCAT_VERSION}" tomcat
-rm -f "hadoop-${HADOOP_VERSION}.tar.gz" "apache-hive-${HIVE_VERSION}-bin.tar.gz" "apache-tomcat-${TOMCAT_VERSION}.tar.gz"
-echo "export JAVA_HOME=${JAVA_HOME}"                                         >"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
+rm -f "hadoop-${HADOOP_VERSION}.tar.gz" "apache-hive-${HIVE_VERSION}-bin.tar.gz"
+echo "export JAVA_HOME=${JAVA_HOME}"                           >"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
 if [ -n "${DATALAKE_HADOOP_HEAPSIZE}" ]; then
-    echo "export HADOOP_HEAPSIZE=${DATALAKE_HADOOP_HEAPSIZE}"               >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
+    echo "export HADOOP_HEAPSIZE=${DATALAKE_HADOOP_HEAPSIZE}" >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
 fi
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/hadoop-env.sh"   >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
+curl -s "${HADOOP_REPOSITORY}/conf/hadoop/hadoop-env.sh"      >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
 rm "${HADOOP_HOME}/etc/hadoop/yarn-env.sh"
 if [ -n "${DATALAKE_YARN_HEAPSIZE}" ]; then
-    echo "export YARN_HEAPSIZE=${DATALAKE_YARN_HEAPSIZE}"                    >"${HADOOP_HOME}/etc/hadoop/yarn-env.sh"
+    echo "export YARN_HEAPSIZE=${DATALAKE_YARN_HEAPSIZE}"      >"${HADOOP_HOME}/etc/hadoop/yarn-env.sh"
 fi
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/yarn-env.sh"     >>"${HADOOP_HOME}/etc/hadoop/yarn-env.sh"
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/core-site.xml"    >"${HADOOP_HOME}/etc/hadoop/core-site.xml"
-cat                                                                   <<EOF >>"${HADOOP_HOME}/etc/hadoop/core-site.xml"
+curl -s "${HADOOP_REPOSITORY}/conf/hadoop/yarn-env.sh"        >>"${HADOOP_HOME}/etc/hadoop/yarn-env.sh"
+curl -s "${HADOOP_REPOSITORY}/conf/hadoop/core-site.xml"       >"${HADOOP_HOME}/etc/hadoop/core-site.xml"
+cat                                                     <<EOF >>"${HADOOP_HOME}/etc/hadoop/core-site.xml"
 <configuration>
     <property>
         <name>fs.defaultFS</name>
@@ -82,8 +78,8 @@ cat                                                                   <<EOF >>"$
     </property>
 </configuration>
 EOF
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/hdfs-site.xml"    >"${HADOOP_HOME}/etc/hadoop/hdfs-site.xml"
-cat                                                                   <<EOF >>"${HADOOP_HOME}/etc/hadoop/hdfs-site.xml"
+curl -s "${HADOOP_REPOSITORY}/conf/hadoop/hdfs-site.xml"       >"${HADOOP_HOME}/etc/hadoop/hdfs-site.xml"
+cat                                                     <<EOF >>"${HADOOP_HOME}/etc/hadoop/hdfs-site.xml"
 <configuration>
     <property>
         <name>dfs.replication</name>
@@ -107,9 +103,9 @@ cat                                                                   <<EOF >>"$
     </property>
 </configuration>
 EOF
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/mapred-site.xml"  >"${HADOOP_HOME}/etc/hadoop/mapred-site.xml"
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hadoop/yarn-site.xml"    >"${HADOOP_HOME}/etc/hadoop/yarn-site.xml"
-cat                                                                   <<EOF >>"${HADOOP_HOME}/etc/hadoop/yarn-site.xml"
+curl -s "${HADOOP_REPOSITORY}/conf/hadoop/mapred-site.xml"     >"${HADOOP_HOME}/etc/hadoop/mapred-site.xml"
+curl -s "${HADOOP_REPOSITORY}/conf/hadoop/yarn-site.xml"       >"${HADOOP_HOME}/etc/hadoop/yarn-site.xml"
+cat                                                     <<EOF >>"${HADOOP_HOME}/etc/hadoop/yarn-site.xml"
 <configuration>
     <property>
         <name>yarn.resourcemanager.scheduler.class</name>
@@ -130,9 +126,9 @@ cat                                                                   <<EOF >>"$
 </configuration>
 EOF
 if [ -n "${DATALAKE_HIVE_HEAPSIZE}" ]; then
-    echo "export HADOOP_HEAPSIZE=${DATALAKE_HIVE_HEAPSIZE}"                  >"${HIVE_HOME}/conf/hive-env.sh"
+    echo "export HADOOP_HEAPSIZE=${DATALAKE_HIVE_HEAPSIZE}"    >"${HIVE_HOME}/conf/hive-env.sh"
 fi
-curl -s "${HADOOP_REPOSITORY}/etc-${HADOOP_VERSION}/hive/hive-site.xml"      >"${HIVE_HOME}/conf/hive-site.xml"
-curl -s "${HADOOP_REPOSITORY}/postgresql-${PSQL_VERSION}.jar"                >"${HIVE_HOME}/lib/postgresql-${PSQL_VERSION}.jar"
+curl -s "${HADOOP_REPOSITORY}/conf/hive/hive-site.xml"         >"${HIVE_HOME}/conf/hive-site.xml"
+curl -s "${HADOOP_REPOSITORY}/postgresql-${PSQL_VERSION}.jar"  >"${HIVE_HOME}/lib/postgresql-${PSQL_VERSION}.jar"
 
 sh "${HADOOP_BASE}/hadoop/init.sh"
