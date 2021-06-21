@@ -24,6 +24,8 @@ psql postgres -c "create database hive"
 "${HADOOP_HOME}/bin/hdfs" dfs -mkdir -p  /user/hive/warehouse
 "${HADOOP_HOME}/bin/hdfs" dfs -chmod g+w /tmp
 "${HADOOP_HOME}/bin/hdfs" dfs -chmod g+w /user/hive/warehouse
+"${HADOOP_HOME}/bin/hdfs" dfs -mkdir -p  /apps/tez-0.9.2
+"${HADOOP_HOME}/bin/hdfs" dfs -put tez/tez-0.9.2-minimal.tar.gz /apps/tez-0.9.2
 ( cd "${HIVE_HOME}"; "${HIVE_HOME}/bin/schematool" -dbType postgres -initSchema )
 ( cd "${HIVE_HOME}"; nohup "${HIVE_HOME}/bin/hiveserver2" >"${HIVE_HOME}/logs/logfile" 2>&1 & )
 echo "HIVE 접속 : \"${HIVE_HOME}/bin/beeline\" -u jdbc:hive2://${DATALAKE_HADOOP_HOST}:10000"

@@ -2,10 +2,12 @@
 
 export HADOOP_HOME="${HADOOP_BASE}/hadoop/hadoop"
 export HIVE_HOME="${HADOOP_BASE}/hadoop/hive"
+export TEZ_HOME="${HADOOP_BASE}/hadoop/tez"
 export PGDATA="${HADOOP_BASE}/hadoop/pgdata"
 
 HADOOP_VERSION="2.9.2"
 HIVE_VERSION="2.3.7"
+TEZ_VERSION="0.9.2"
 PSQL_VERSION="42.2.16"
 
 if [ -z "${DATALAKE_HADOOP_HOST}" ]; then
@@ -42,11 +44,15 @@ curl -s "${HADOOP_REPOSITORY}/hadoop-${HADOOP_VERSION}.tar.gz.5"        >>"hadoo
 curl -s "${HADOOP_REPOSITORY}/apache-hive-${HIVE_VERSION}-bin.tar.gz.1"  >"apache-hive-${HIVE_VERSION}-bin.tar.gz"
 curl -s "${HADOOP_REPOSITORY}/apache-hive-${HIVE_VERSION}-bin.tar.gz.2" >>"apache-hive-${HIVE_VERSION}-bin.tar.gz"
 curl -s "${HADOOP_REPOSITORY}/apache-hive-${HIVE_VERSION}-bin.tar.gz.3" >>"apache-hive-${HIVE_VERSION}-bin.tar.gz"
+curl -s "${HADOOP_REPOSITORY}/apache-tez-${TEZ_VERSION}-bin.tar.gz"      >"apache-tez-${TEZ_VERSION}-bin.tar.gz"
 tar xzf "hadoop-${HADOOP_VERSION}.tar.gz"
 tar xzf "apache-hive-${HIVE_VERSION}-bin.tar.gz"
+tar xzf "apache-tez-${TEZ_VERSION}-bin.tar.gz"
 mv "hadoop-${HADOOP_VERSION}"        hadoop
 mv "apache-hive-${HIVE_VERSION}-bin" hive
-rm -f "hadoop-${HADOOP_VERSION}.tar.gz" "apache-hive-${HIVE_VERSION}-bin.tar.gz"
+mv "apache-tez-${TEZ_VERSION}-bin"   tez
+curl -s "${HADOOP_REPOSITORY}/tez-0.9.2-minimal.tar.gz"                  >"tez/tez-0.9.2-minimal.tar.gz"
+rm -f "hadoop-${HADOOP_VERSION}.tar.gz" "apache-hive-${HIVE_VERSION}-bin.tar.gz" "apache-tez-${TEZ_VERSION}-bin.tar.gz"
 echo "export JAVA_HOME=${JAVA_HOME}"                           >"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
 if [ -n "${DATALAKE_HADOOP_HEAPSIZE}" ]; then
     echo "export HADOOP_HEAPSIZE=${DATALAKE_HADOOP_HEAPSIZE}" >>"${HADOOP_HOME}/etc/hadoop/hadoop-env.sh"
@@ -129,6 +135,7 @@ if [ -n "${DATALAKE_HIVE_HEAPSIZE}" ]; then
     echo "export HADOOP_HEAPSIZE=${DATALAKE_HIVE_HEAPSIZE}"    >"${HIVE_HOME}/conf/hive-env.sh"
 fi
 curl -s "${HADOOP_REPOSITORY}/conf/hive/hive-site.xml"         >"${HIVE_HOME}/conf/hive-site.xml"
+curl -s "${HADOOP_REPOSITORY}/conf/tez/tez-site.xml"           >"${TEZ_HOME}/conf/tez-site.xml"
 curl -s "${HADOOP_REPOSITORY}/postgresql-${PSQL_VERSION}.jar"  >"${HIVE_HOME}/lib/postgresql-${PSQL_VERSION}.jar"
 
 sh "${HADOOP_BASE}/hadoop/init.sh"
