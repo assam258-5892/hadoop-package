@@ -122,6 +122,10 @@ cat                                                     <<EOF >>"${HADOOP_HOME}/
         <value>mapreduce_shuffle</value>
     </property>
     <property>
+       <name>yarn.nodemanager.vmem-check-enabled</name>
+       <value>false</value>
+    </property>
+    <property>
         <name>yarn.nodemanager.resource.memory-mb</name>
         <value>${DATALAKE_YARN_MEMORY}</value>
     </property>
