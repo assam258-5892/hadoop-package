@@ -13,6 +13,8 @@ sh "${HADOOP_BASE}/hadoop/clean.sh"
 cd "${HADOOP_BASE}/hadoop"
 mkdir ${HIVE_HOME}/logs
 pg_ctl init -D "${PGDATA}"
+echo "listen_addresses = '*'"                                                >>"${PGDATA}/postgresql.conf"
+echo "host    all             all             0.0.0.0/0               trust" >>"${PGDATA}/pg_hba.conf"
 pg_ctl start -D "${PGDATA}" -l "${PGDATA}/logfile"
 psql postgres -c "create user hadoop"
 psql postgres -c "create database hadoop"
