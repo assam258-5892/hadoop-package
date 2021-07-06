@@ -142,4 +142,4 @@ curl -s "${HADOOP_REPOSITORY}/conf/hive/hive-site.xml"         >"${HIVE_HOME}/co
 curl -s "${HADOOP_REPOSITORY}/conf/tez/tez-site.xml"           >"${TEZ_HOME}/conf/tez-site.xml"
 curl -s "${HADOOP_REPOSITORY}/postgresql-${PSQL_VERSION}.jar"  >"${HIVE_HOME}/lib/postgresql-${PSQL_VERSION}.jar"
 
-sh "${HADOOP_BASE}/hadoop/init.sh"
+# sh "${HADOOP_BASE}/hadoop/init.sh"
