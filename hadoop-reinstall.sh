@@ -126,6 +126,10 @@ cat                                                     <<EOF >>"${HADOOP_HOME}/
        <value>false</value>
     </property>
     <property>
+       <name>yarn.nodemanager.disk-health-checker.enable</name>
+       <value>false</value>
+    </property>
+    <property>
         <name>yarn.nodemanager.resource.memory-mb</name>
         <value>${DATALAKE_YARN_MEMORY}</value>
     </property>
