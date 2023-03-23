@@ -8,7 +8,7 @@ export PGDATA="${HADOOP_BASE}/hadoop/pgdata"
 HADOOP_VERSION="2.9.2"
 HIVE_VERSION="2.3.7"
 TEZ_VERSION="0.9.2"
-PSQL_VERSION="42.2.16"
+PSQL_VERSION="42.5.0"
 
 if [ -z "${DATALAKE_HADOOP_HOST}" ]; then
     export DATALAKE_HADOOP_HOST="localhost"
@@ -27,7 +27,6 @@ pgrep -f proc_resourcemanager   | xargs -r kill -9
 pgrep -f proc_secondarynamenode | xargs -r kill -9
 pgrep -f proc_datanode          | xargs -r kill -9
 pgrep -f proc_namenode          | xargs -r kill -9
-pgrep -f postgres               | xargs -r kill -9
 rm -rf hadoop /tmp/hadoop-*
 
 mkdir hadoop
