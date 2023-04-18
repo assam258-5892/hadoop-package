@@ -12,10 +12,10 @@ sh "${HADOOP_BASE}/hadoop/clean.sh"
 
 cd "${HADOOP_BASE}/hadoop"
 mkdir ${HIVE_HOME}/logs
-psql postgres -c "drop database if exists hive"
-psql postgres -c "drop user if exists hadoop"
-psql postgres -c "create user hadoop"
-psql postgres -c "create database hive"
+psql -c "drop database if exists hive"
+psql -c "drop user if exists hadoop"
+psql -c "create user hadoop"
+psql -c "create database hive"
 "${HADOOP_HOME}/bin/hdfs" namenode -format
 "${HADOOP_HOME}/sbin/start-dfs.sh"
 "${HADOOP_HOME}/sbin/start-yarn.sh"
